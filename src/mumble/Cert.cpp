@@ -323,7 +323,12 @@ bool CertWizard::validateCurrentPage() {
 		kpNew = imp;
 	}
     if(currentPage() == qwpWinCert) {
-        // Refer to the button event instead..
+        if(!qcbWinCertState->isChecked() || !validateCert(kpNew)) {
+            QToolTip::showText(qpbOpenCertStore->mapToGlobal(QPoint(0, 0)),
+                                      tr("Unable to open Certificate Store or No Certificate has been Selected"),
+                                      qpbOpenCertStore);
+            return false;
+        }
     }
 	if (currentPage() == qwpFinish) {
         Global::get().s.kpCertificate = kpNew;
@@ -433,15 +438,18 @@ void CertWizard::on_qlIntroText_linkActivated(const QString &url) {
 	QDesktopServices::openUrl(QUrl(url));
 }
 
+#include <QMessageBox>
 void CertWizard::on_qpbOpenCertStore_clicked()
 {
+#if WIN32
     Settings::KeyPair pair = CertWizard::promptWinStoreCert();
-    if(!validateCert(pair))
-        return QToolTip::showText(qpbOpenCertStore->mapToGlobal(QPoint(0, 0)),
-                           tr("Unable to open Certificate Store or No Certificate has been Selected"),
-                           qpbOpenCertStore);
+    if(validateCert(pair)) {
+        kpNew = pair;
+        cvWinCert->setCert(pair.first);
+        qcbWinCertState->setChecked(true);
+    }
+#endif
 
-    kpNew = pair;
 }
 
 bool CertWizard::validateCert(const Settings::KeyPair &kp) {
@@ -467,32 +475,35 @@ Settings::KeyPair CertWizard::generateNewCert(QString qsname, const QString &qse
 
 #if WIN32
 Settings::KeyPair CertWizard::promptWinStoreCert() {
-    HCERTSTORE hStore = CertOpenSystemStore(NULL, L"MY");
-    if(!hStore)
-        return Settings::KeyPair();
+    HCERTSTORE hStore = nullptr;
+    PCCERT_CONTEXT CertCtx = nullptr;
+    Settings::KeyPair Pair;
 
-    PCCERT_CONTEXT CertCtx = CryptUIDlgSelectCertificateFromStore(
+    hStore = CertOpenSystemStore(NULL, L"MY");
+    if(hStore == nullptr)
+        return Pair;
+
+    CertCtx = CryptUIDlgSelectCertificateFromStore(
         hStore,
         NULL,
         L"Select a Certificate",
-        L"Choose a windows certificate store you want to use.",
+        L"Choose a certificate from windows store you want to use.",
         NULL,
         NULL,
         NULL
         );
 
-    if(CertCtx) {
-        QByteArray RawCert(CertCtx->pbCertEncoded);
-        QSslCertificate Cert(RawCert);
-        QList< QSslCertificate > qlCert;
-        qlCert << Cert;
-        Settings::KeyPair Pair = Settings::KeyPair(qlCert, Cert.publicKey()); // using pubKey as priKey handler placeholder Win Stuff
+    if(CertCtx != nullptr) {
+        QByteArray RawCert((char*)CertCtx->pbCertEncoded, CertCtx->cbCertEncoded);
+        QList< QSslCertificate > qlCert = QSslCertificate::fromData(RawCert, QSsl::Der);
+        if(!qlCert.empty()) {
+            Pair = Settings::KeyPair(qlCert, qlCert.first().publicKey()); // using pubKey as priKey handler placeholder Win Stuff
+        }
         CertFreeCertificateContext(CertCtx);
-        return Pair;
     }
 
     CertCloseStore(hStore, NULL);
-    return Settings::KeyPair();
+    return Pair;
 }
 #endif
 

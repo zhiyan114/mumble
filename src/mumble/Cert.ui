@@ -369,20 +369,6 @@ Are you sure you wish to replace your certificate?
     <string notr="true">6</string>
    </attribute>
    <layout class="QGridLayout" name="gridLayout_9">
-    <item row="1" column="0">
-     <widget class="QPushButton" name="qpbOpenCertStore">
-      <property name="text">
-       <string>Open Certificate Store</string>
-      </property>
-     </widget>
-    </item>
-    <item row="2" column="0">
-     <widget class="CertView" name="cvWinCert">
-      <property name="title">
-       <string>Selected Certificate</string>
-      </property>
-     </widget>
-    </item>
     <item row="0" column="0">
      <widget class="QLabel" name="qlWinCertIntro">
       <property name="text">
@@ -390,6 +376,36 @@ Are you sure you wish to replace your certificate?
       </property>
       <property name="wordWrap">
        <bool>true</bool>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="0">
+     <widget class="QPushButton" name="qpbOpenCertStore">
+      <property name="text">
+       <string>Open Certificate Store</string>
+      </property>
+     </widget>
+    </item>
+    <item row="3" column="0">
+     <widget class="CertView" name="cvWinCert">
+      <property name="title">
+       <string>Selected Certificate</string>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="0">
+     <widget class="QCheckBox" name="qcbWinCertState">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
+      <property name="autoFillBackground">
+       <bool>false</bool>
+      </property>
+      <property name="text">
+       <string>Cert Selected Status</string>
+      </property>
+      <property name="tristate">
+       <bool>false</bool>
       </property>
      </widget>
     </item>
