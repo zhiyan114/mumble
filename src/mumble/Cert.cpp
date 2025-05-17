@@ -246,18 +246,9 @@ void CertWizard::initializePage(int id) {
     qrbWinStore->setEnabled(true);
 
     // Block export for WinStore Certs
-    if(!kpCurrent.first.isEmpty()) {
-        QByteArray firstKey = kpCurrent.first.first().publicKey().toDer();
-        QByteArray secondKey = kpCurrent.second.toDer();
-        if(firstKey.length() == secondKey.length()) {
-            bool isWinStoreCert = true;
-            for(int i=0; i<firstKey.length(); i++)
-                if(firstKey.at(i) != secondKey.at(i))
-                    isWinStoreCert = false;
-            if(isWinStoreCert)
-                qrbExport->setEnabled(false);
-        }
-    }
+    if(CertWizard::isWindowsCert(kpCurrent))
+        qrbExport->setEnabled(false);
+
 #endif
 
 	QWizard::initializePage(id);
@@ -518,7 +509,7 @@ Settings::KeyPair CertWizard::promptWinStoreCert() {
     return Pair;
 }
 
-NCRYPT_KEY_HANDLE getWinKeyHandle(QSslKey pubKey) {
+NCRYPT_KEY_HANDLE CertWizard::getWinKeyHandle(QSslKey pubKey) {
     HCRYPTPROV_OR_NCRYPT_KEY_HANDLE Handle = NULL;
     HCERTSTORE hStore = nullptr;
     PCCERT_CONTEXT crtCtx = nullptr;
@@ -581,6 +572,21 @@ NCRYPT_KEY_HANDLE getWinKeyHandle(QSslKey pubKey) {
         CertFreeCertificateContext(crtCtx);
 
     return Handle; // Call NCryptFreeObject(Handle); when done!
+}
+
+BOOL CertWizard::isWindowsCert(Settings::KeyPair pair) {
+    if(!pair.first.isEmpty()) {
+        QByteArray firstKey = pair.first.first().publicKey().toDer();
+        QByteArray secondKey = pair.second.toDer();
+        if(firstKey.length() == secondKey.length()) {
+            bool isWinStoreCert = true;
+            for(int i=0; i<firstKey.length(); i++)
+                if(firstKey.at(i) != secondKey.at(i))
+                    isWinStoreCert = false;
+            return isWinStoreCert;
+        }
+    }
+    return false;
 }
 #endif
 
