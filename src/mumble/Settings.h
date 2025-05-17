@@ -214,7 +214,10 @@ struct Settings {
 		RecordingTransportStandalone
 	};
 
-	typedef QPair< QList< QSslCertificate >, QSslKey > KeyPair;
+    typedef QPair< QList< QSslCertificate >, QSslKey > KeyPair;
+#if WIN32
+    typedef QPair< QList< QSslCertificate >, QString> WinKeyPair; // Windows Cert Store Keypair
+#endif
 
 	static const QString cqsDefaultPushClickOn;
 	static const QString cqsDefaultPushClickOff;

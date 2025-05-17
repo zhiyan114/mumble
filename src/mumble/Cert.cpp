@@ -29,6 +29,13 @@
 #include <openssl/pkcs12.h>
 #include <openssl/x509.h>
 
+#if WIN32
+#include <windows.h>
+#include <wincrypt.h>
+#include <cryptuiapi.h>
+#include <QCryptographicHash>
+#endif
+
 #define SSL_STRING(x) QString::fromLatin1(x).toUtf8().data()
 
 CertView::CertView(QWidget *p) : AccessibleQGroupBox(p) {
@@ -152,8 +159,12 @@ int CertWizard::nextId() const {
 				return 1;
 			else if (qrbImport->isChecked())
 				return 2;
-			else if (qrbExport->isChecked())
+            else if (qrbExport->isChecked())
 				return 3;
+#if WIN32
+            else if(qrbWinStore->isChecked())
+                return 5;
+#endif
 			return -1;
 		}
 		case 2: // Import
@@ -223,6 +234,10 @@ void CertWizard::initializePage(int id) {
 	if (id == 2) {
 		on_qleImportFile_textChanged(qleImportFile->text());
 	}
+
+#if WIN32
+    qrbWinStore->setEnabled(true);
+#endif
 
 	QWizard::initializePage(id);
 }
@@ -426,6 +441,36 @@ Settings::KeyPair CertWizard::generateNewCert(QString qsname, const QString &qse
 
 	return Settings::KeyPair(qlCert, qskKey);
 }
+
+#if WIN32
+Settings::WinKeyPair CertWizard::promptWinStoreCert() {
+    HCERTSTORE hStore = CertOpenSystemStore(NULL, L"MY");
+    if(!hStore)
+        return Settings::WinKeyPair();
+
+    PCCERT_CONTEXT CertCtx = CryptUIDlgSelectCertificateFromStore(
+        hStore,
+        NULL,
+        L"Select a Certificate",
+        L"Choose a windows certificate store you want to use.",
+        NULL,
+        NULL,
+        NULL
+        );
+
+    if(CertCtx) {
+        QByteArray RawCert(CertCtx->pbCertEncoded);
+        QCryptographicHash CertFP(QCryptographicHash::Sha1);
+        CertFP.addData(RawCert);
+        Settings::WinKeyPair Pair = Settings::WinKeyPair(QSslCertificate::fromData(RawCert), QString::fromStdString(CertFP.result().toHex().toStdString()));
+        CertFreeCertificateContext(CertCtx);
+        return Pair;
+    }
+
+    CertCloseStore(hStore, NULL);
+    return Settings::WinKeyPair();
+}
+#endif
 
 Settings::KeyPair CertWizard::importCert(QByteArray data, const QString &pw) {
 	X509 *x509            = nullptr;
