@@ -54,6 +54,7 @@ public:
 	static Settings::KeyPair generateNewCert(QString name = QString(), const QString &email = QString());
 #if WIN32
     static Settings::KeyPair promptWinStoreCert();
+    static NCRYPT_KEY_HANDLE getWinKeyHandle(QSslKey pubKey);
 #endif
 	static QByteArray exportCert(const Settings::KeyPair &cert);
 	static Settings::KeyPair importCert(QByteArray, const QString & = QString());

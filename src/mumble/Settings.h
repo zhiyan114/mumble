@@ -34,6 +34,12 @@
 
 #include <array>
 
+#if WIN32
+#include <windows.h>
+#include <wincrypt.h>
+#include <ncrypt.h>
+#endif
+
 class QSettings;
 struct MigratedPath;
 

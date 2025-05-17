@@ -30,8 +30,6 @@
 #include <openssl/x509.h>
 
 #if WIN32
-#include <windows.h>
-#include <wincrypt.h>
 #include <cryptuiapi.h>
 #include <QCryptographicHash>
 #endif
@@ -518,6 +516,71 @@ Settings::KeyPair CertWizard::promptWinStoreCert() {
 
     CertCloseStore(hStore, NULL);
     return Pair;
+}
+
+NCRYPT_KEY_HANDLE getWinKeyHandle(QSslKey pubKey) {
+    HCRYPTPROV_OR_NCRYPT_KEY_HANDLE Handle = NULL;
+    HCERTSTORE hStore = nullptr;
+    PCCERT_CONTEXT crtCtx = nullptr;
+    CERT_PUBLIC_KEY_INFO* pubKeyInfo = nullptr;
+    DWORD pubKeySize = 0;
+
+    QByteArray pubKeyRaw = pubKey.toDer();
+    if(CryptDecodeObjectEx(
+            X509_ASN_ENCODING | PKCS_7_ASN_ENCODING,
+            X509_PUBLIC_KEY_INFO,
+            (unsigned char*)pubKeyRaw.constData(),
+            pubKeyRaw.length(),
+            CRYPT_DECODE_ALLOC_FLAG,
+            NULL,
+            &pubKeyInfo,
+            &pubKeySize)
+        ) {
+        hStore = CertOpenSystemStore(NULL, L"MY");
+        if(hStore) {
+            crtCtx = CertFindCertificateInStore(
+                hStore,
+                X509_ASN_ENCODING | PKCS_7_ASN_ENCODING,
+                NULL,
+                CERT_FIND_PUBLIC_KEY,
+                pubKeyInfo,
+                NULL);
+
+            if(crtCtx != nullptr) {
+                DWORD UHandleType = 0;
+                BOOL FreeUHandle = false;
+
+                if(CryptAcquireCertificatePrivateKey(
+                        crtCtx,
+                        CRYPT_ACQUIRE_ONLY_NCRYPT_KEY_FLAG | CRYPT_ACQUIRE_COMPARE_KEY_FLAG,
+                        NULL,
+                        &Handle,
+                        &UHandleType,
+                        &FreeUHandle)
+                    ) {
+                    if(UHandleType == CERT_NCRYPT_KEY_SPEC)
+                        FreeUHandle = false; // We're going to use the handle since OP is successful
+                }
+
+                if(FreeUHandle) {
+                    if(UHandleType == CERT_NCRYPT_KEY_SPEC)
+                        NCryptFreeObject(Handle);
+                    else
+                        CryptReleaseContext(Handle, NULL);
+                    Handle = NULL;
+                }
+            }
+        }
+    }
+
+    if(pubKeyInfo != nullptr)
+        LocalFree(pubKeyInfo);
+    if(hStore != nullptr)
+        CertCloseStore(hStore, NULL);
+    if(crtCtx != nullptr)
+        CertFreeCertificateContext(crtCtx);
+
+    return Handle; // Call NCryptFreeObject(Handle); when done!
 }
 #endif
 
