@@ -370,7 +370,7 @@ Are you sure you wish to replace your certificate?
    </attribute>
    <layout class="QGridLayout" name="gridLayout_9">
     <item row="1" column="0">
-     <widget class="QPushButton" name="qlOpenCertStore">
+     <widget class="QPushButton" name="qpbOpenCertStore">
       <property name="text">
        <string>Open Certificate Store</string>
       </property>

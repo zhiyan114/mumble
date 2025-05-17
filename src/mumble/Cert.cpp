@@ -161,12 +161,8 @@ int CertWizard::nextId() const {
 				return 2;
             else if (qrbExport->isChecked())
 				return 3;
-            else if(qrbWinStore->isChecked()) {
-                if(validateCert(kpCurrent))
-                    return 4;
-                else
-                    return 5;
-            }
+            else if(qrbWinStore->isChecked())
+                return 6;
 
 			return -1;
 		}
@@ -193,6 +189,11 @@ int CertWizard::nextId() const {
 				return 4;
 			else
 				return 3;
+        case 6: // Win Cert Store
+            if (validateCert(kpCurrent))
+                return 4;
+            else
+                return 5;
 	}
 	return -1;
 }
@@ -239,6 +240,9 @@ void CertWizard::initializePage(int id) {
 	if (id == 2) {
 		on_qleImportFile_textChanged(qleImportFile->text());
 	}
+    if(id == 6) {
+        cvWinCert->setCert(kpNew.first);
+    }
 
 #if WIN32
     qrbWinStore->setEnabled(true);
@@ -318,6 +322,9 @@ bool CertWizard::validateCurrentPage() {
 		}
 		kpNew = imp;
 	}
+    if(currentPage() == qwpWinCert) {
+        // Refer to the button event instead..
+    }
 	if (currentPage() == qwpFinish) {
         Global::get().s.kpCertificate = kpNew;
 	}
@@ -424,6 +431,17 @@ void CertWizard::on_qlePassword_textChanged(const QString &) {
 
 void CertWizard::on_qlIntroText_linkActivated(const QString &url) {
 	QDesktopServices::openUrl(QUrl(url));
+}
+
+void CertWizard::on_qpbOpenCertStore_clicked()
+{
+    Settings::KeyPair pair = CertWizard::promptWinStoreCert();
+    if(!validateCert(pair))
+        return QToolTip::showText(qpbOpenCertStore->mapToGlobal(QPoint(0, 0)),
+                           tr("Unable to open Certificate Store or No Certificate has been Selected"),
+                           qpbOpenCertStore);
+
+    kpNew = pair;
 }
 
 bool CertWizard::validateCert(const Settings::KeyPair &kp) {
@@ -621,3 +639,4 @@ QByteArray CertWizard::exportCert(const Settings::KeyPair &kp) {
 }
 
 #undef SSL_STRING
+

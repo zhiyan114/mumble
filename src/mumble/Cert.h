@@ -66,6 +66,9 @@ public slots:
 	void on_qlePassword_textChanged(const QString &);
 	void on_qlIntroText_linkActivated(const QString &);
 	void showPage(int);
+private slots:
+    void on_qlOpenCertStore_clicked();
+    void on_qpbOpenCertStore_clicked();
 };
 
 #endif
