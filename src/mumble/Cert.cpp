@@ -161,10 +161,13 @@ int CertWizard::nextId() const {
 				return 2;
             else if (qrbExport->isChecked())
 				return 3;
-#if WIN32
-            else if(qrbWinStore->isChecked())
-                return 5;
-#endif
+            else if(qrbWinStore->isChecked()) {
+                if(validateCert(kpCurrent))
+                    return 4;
+                else
+                    return 5;
+            }
+
 			return -1;
 		}
 		case 2: // Import
@@ -175,8 +178,10 @@ int CertWizard::nextId() const {
 		case 4: // Replace
 			if (qrbCreate->isChecked())
 				return 3;
-			if (qrbImport->isChecked())
+            if (qrbImport->isChecked())
 				return 5;
+            if (qrbWinStore->isChecked())
+                return 5;
 			return -1;
 		case 3: // Export
 			if (qrbCreate->isChecked())
@@ -314,7 +319,7 @@ bool CertWizard::validateCurrentPage() {
 		kpNew = imp;
 	}
 	if (currentPage() == qwpFinish) {
-		Global::get().s.kpCertificate = kpNew;
+        Global::get().s.kpCertificate = kpNew;
 	}
 	return QWizard::validateCurrentPage();
 }
@@ -443,10 +448,10 @@ Settings::KeyPair CertWizard::generateNewCert(QString qsname, const QString &qse
 }
 
 #if WIN32
-Settings::WinKeyPair CertWizard::promptWinStoreCert() {
+Settings::KeyPair CertWizard::promptWinStoreCert() {
     HCERTSTORE hStore = CertOpenSystemStore(NULL, L"MY");
     if(!hStore)
-        return Settings::WinKeyPair();
+        return Settings::KeyPair();
 
     PCCERT_CONTEXT CertCtx = CryptUIDlgSelectCertificateFromStore(
         hStore,
@@ -460,15 +465,16 @@ Settings::WinKeyPair CertWizard::promptWinStoreCert() {
 
     if(CertCtx) {
         QByteArray RawCert(CertCtx->pbCertEncoded);
-        QCryptographicHash CertFP(QCryptographicHash::Sha1);
-        CertFP.addData(RawCert);
-        Settings::WinKeyPair Pair = Settings::WinKeyPair(QSslCertificate::fromData(RawCert), QString::fromStdString(CertFP.result().toHex().toStdString()));
+        QSslCertificate Cert(RawCert);
+        QList< QSslCertificate > qlCert;
+        qlCert << Cert;
+        Settings::KeyPair Pair = Settings::KeyPair(qlCert, Cert.publicKey()); // using pubKey as priKey handler placeholder Win Stuff
         CertFreeCertificateContext(CertCtx);
         return Pair;
     }
 
     CertCloseStore(hStore, NULL);
-    return Settings::WinKeyPair();
+    return Settings::KeyPair();
 }
 #endif
 
