@@ -246,6 +246,20 @@ void CertWizard::initializePage(int id) {
 
 #if WIN32
     qrbWinStore->setEnabled(true);
+
+    // Block export for WinStore Certs
+    if(!kpCurrent.first.isEmpty()) {
+        QByteArray firstKey = kpCurrent.first.first().publicKey().toDer();
+        QByteArray secondKey = kpCurrent.second.toDer();
+        if(firstKey.length() == secondKey.length()) {
+            bool isWinStoreCert = true;
+            for(int i=0; i<firstKey.length(); i++)
+                if(firstKey.at(i) != secondKey.at(i))
+                    isWinStoreCert = false;
+            if(isWinStoreCert)
+                qrbExport->setEnabled(false);
+        }
+    }
 #endif
 
 	QWizard::initializePage(id);
