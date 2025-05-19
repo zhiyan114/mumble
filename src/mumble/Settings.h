@@ -34,6 +34,12 @@
 
 #include <array>
 
+#if WIN32
+#include <windows.h>
+#include <wincrypt.h>
+#include <ncrypt.h>
+#endif
+
 class QSettings;
 struct MigratedPath;
 
@@ -214,7 +220,7 @@ struct Settings {
 		RecordingTransportStandalone
 	};
 
-	typedef QPair< QList< QSslCertificate >, QSslKey > KeyPair;
+    typedef QPair< QList< QSslCertificate >, QSslKey > KeyPair;
 
 	static const QString cqsDefaultPushClickOn;
 	static const QString cqsDefaultPushClickOff;

@@ -52,6 +52,11 @@ public:
 	bool validateCurrentPage() Q_DECL_OVERRIDE;
 	static bool validateCert(const Settings::KeyPair &);
 	static Settings::KeyPair generateNewCert(QString name = QString(), const QString &email = QString());
+#if WIN32
+    static Settings::KeyPair promptWinStoreCert();
+    static NCRYPT_KEY_HANDLE getWinKeyHandle(QSslKey pubKey);
+    static BOOL isWindowsCert(Settings::KeyPair pair);
+#endif
 	static QByteArray exportCert(const Settings::KeyPair &cert);
 	static Settings::KeyPair importCert(QByteArray, const QString & = QString());
 public slots:
@@ -62,6 +67,7 @@ public slots:
 	void on_qleImportFile_textChanged(const QString &);
 	void on_qlePassword_textChanged(const QString &);
 	void on_qlIntroText_linkActivated(const QString &);
+    void on_qpbOpenCertStore_clicked();
 	void showPage(int);
 };
 

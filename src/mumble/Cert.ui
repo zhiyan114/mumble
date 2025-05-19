@@ -145,6 +145,16 @@
       </property>
      </widget>
     </item>
+    <item>
+     <widget class="QRadioButton" name="qrbWinStore">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
+      <property name="text">
+       <string>Use Windows Certificate Store</string>
+      </property>
+     </widget>
+    </item>
    </layout>
   </widget>
   <widget class="CompletablePage" name="qwpImport">
@@ -158,6 +168,22 @@
     <string notr="true">2</string>
    </attribute>
    <layout class="QGridLayout" name="gridLayout">
+    <item row="4" column="0" colspan="3">
+     <widget class="CertView" name="cvImport">
+      <property name="toolTip">
+       <string>Certificate to import</string>
+      </property>
+      <property name="whatsThis">
+       <string>This is the certificate you are importing.</string>
+      </property>
+      <property name="accessibleName">
+       <string>Displays imported certificate</string>
+      </property>
+      <property name="title">
+       <string>Certificate Details</string>
+      </property>
+     </widget>
+    </item>
     <item row="0" column="0" colspan="3">
      <widget class="QLabel" name="qlImportText">
       <property name="text">
@@ -165,6 +191,64 @@
       </property>
       <property name="wordWrap">
        <bool>true</bool>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="1">
+     <widget class="QLineEdit" name="qlePassword">
+      <property name="toolTip">
+       <string>Password for PKCS#12 file</string>
+      </property>
+      <property name="whatsThis">
+       <string>This is the password for the PKCS#12 file containing your certificate.</string>
+      </property>
+      <property name="accessibleName">
+       <string>Certificate password</string>
+      </property>
+      <property name="echoMode">
+       <enum>QLineEdit::Password</enum>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="2">
+     <widget class="QPushButton" name="qpbImportFile">
+      <property name="toolTip">
+       <string>Select file to import from</string>
+      </property>
+      <property name="text">
+       <string>Open...</string>
+      </property>
+      <property name="icon">
+       <iconset>
+        <normaloff>skin:actions/document-open.svg</normaloff>skin:actions/document-open.svg</iconset>
+      </property>
+     </widget>
+    </item>
+    <item row="3" column="0" colspan="3">
+     <widget class="QLabel" name="qlPasswordNotice">
+      <property name="font">
+       <font>
+        <italic>true</italic>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">color:#ff0000;</string>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="wordWrap">
+       <bool>true</bool>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="0">
+     <widget class="QLabel" name="qlPassword">
+      <property name="text">
+       <string>Password</string>
+      </property>
+      <property name="buddy">
+       <cstring>qlePassword</cstring>
       </property>
      </widget>
     </item>
@@ -191,80 +275,6 @@
       </property>
       <property name="accessibleDescription">
        <string>Use the &quot;open&quot; button to select a file using a dialog.</string>
-      </property>
-     </widget>
-    </item>
-    <item row="1" column="2">
-     <widget class="QPushButton" name="qpbImportFile">
-      <property name="toolTip">
-       <string>Select file to import from</string>
-      </property>
-      <property name="text">
-       <string>Open...</string>
-      </property>
-      <property name="icon">
-       <iconset>
-        <normaloff>skin:actions/document-open.svg</normaloff>skin:actions/document-open.svg</iconset>
-      </property>
-     </widget>
-    </item>
-    <item row="2" column="0">
-     <widget class="QLabel" name="qlPassword">
-      <property name="text">
-       <string>Password</string>
-      </property>
-      <property name="buddy">
-       <cstring>qlePassword</cstring>
-      </property>
-     </widget>
-    </item>
-    <item row="2" column="1">
-     <widget class="QLineEdit" name="qlePassword">
-      <property name="toolTip">
-       <string>Password for PKCS#12 file</string>
-      </property>
-      <property name="whatsThis">
-       <string>This is the password for the PKCS#12 file containing your certificate.</string>
-      </property>
-      <property name="accessibleName">
-       <string>Certificate password</string>
-      </property>
-      <property name="echoMode">
-       <enum>QLineEdit::Password</enum>
-      </property>
-     </widget>
-    </item>
-    <item row="3" column="0" colspan="3">
-     <widget class="QLabel" name="qlPasswordNotice">
-      <property name="font">
-       <font>
-        <italic>true</italic>
-       </font>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">color:#ff0000;</string>
-      </property>
-      <property name="text">
-       <string/>
-      </property>
-      <property name="wordWrap">
-       <bool>true</bool>
-      </property>
-     </widget>
-    </item>
-    <item row="4" column="0" colspan="3">
-     <widget class="CertView" name="cvImport">
-      <property name="toolTip">
-       <string>Certificate to import</string>
-      </property>
-      <property name="whatsThis">
-       <string>This is the certificate you are importing.</string>
-      </property>
-      <property name="accessibleName">
-       <string>Displays imported certificate</string>
-      </property>
-      <property name="title">
-       <string>Certificate Details</string>
       </property>
      </widget>
     </item>
@@ -348,6 +358,59 @@ Are you sure you wish to replace your certificate?
     </item>
    </layout>
   </widget>
+  <widget class="CompletablePage" name="qwpWinCert">
+   <property name="title">
+    <string>Windows Certificate Store</string>
+   </property>
+   <property name="subTitle">
+    <string>Windows Store Certificate Selection</string>
+   </property>
+   <attribute name="pageId">
+    <string notr="true">6</string>
+   </attribute>
+   <layout class="QGridLayout" name="gridLayout_9">
+    <item row="0" column="0">
+     <widget class="QLabel" name="qlWinCertIntro">
+      <property name="text">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select a Windows Store Certificate that you would like to use instead of file-based. It's highly recommended that you install appropriate Smart Card driver if you are planning to use Smart Card certificates.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
+      <property name="wordWrap">
+       <bool>true</bool>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="0">
+     <widget class="QPushButton" name="qpbOpenCertStore">
+      <property name="text">
+       <string>Open Certificate Store</string>
+      </property>
+     </widget>
+    </item>
+    <item row="3" column="0">
+     <widget class="CertView" name="cvWinCert">
+      <property name="title">
+       <string>Selected Certificate</string>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="0">
+     <widget class="QCheckBox" name="qcbWinCertState">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
+      <property name="autoFillBackground">
+       <bool>false</bool>
+      </property>
+      <property name="text">
+       <string>Cert Selected Status</string>
+      </property>
+      <property name="tristate">
+       <bool>false</bool>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
   <widget class="CompletablePage" name="qwpExport">
    <property name="title">
     <string>Export Certificate</string>
@@ -359,14 +422,19 @@ Are you sure you wish to replace your certificate?
     <string notr="true">3</string>
    </attribute>
    <layout class="QGridLayout" name="gridLayout_4">
-    <item row="0" column="0" colspan="3">
-     <widget class="QLabel" name="qlExport">
-      <property name="text">
-       <string>&lt;p&gt;If you ever lose your current certificate, which will happen if your computer suffers a hardware failure or you reinstall your machine, you will no longer be able to authenticate to any server you are registered on. It is therefore &lt;b&gt;mandatory&lt;/b&gt; that you make a backup of your certificate. We strongly recommend you store this backup on removable storage, such as a USB flash drive.&lt;/p&gt;
-&lt;p&gt;Note that this file will not be encrypted, and if anyone gains access to it, they will be able to impersonate you, so take good care of it.&lt;/p&gt;</string>
+    <item row="2" column="0" colspan="3">
+     <widget class="CertView" name="cvExport">
+      <property name="toolTip">
+       <string>Current certificate</string>
       </property>
-      <property name="wordWrap">
-       <bool>true</bool>
+      <property name="whatsThis">
+       <string>This is the certificate Mumble currently uses. It will be exported.</string>
+      </property>
+      <property name="accessibleName">
+       <string>Displays current certificate</string>
+      </property>
+      <property name="title">
+       <string>Certificate Details</string>
       </property>
      </widget>
     </item>
@@ -377,6 +445,17 @@ Are you sure you wish to replace your certificate?
       </property>
       <property name="buddy">
        <cstring>qleExportFile</cstring>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="0" colspan="3">
+     <widget class="QLabel" name="qlExport">
+      <property name="text">
+       <string>&lt;p&gt;If you ever lose your current certificate, which will happen if your computer suffers a hardware failure or you reinstall your machine, you will no longer be able to authenticate to any server you are registered on. It is therefore &lt;b&gt;mandatory&lt;/b&gt; that you make a backup of your certificate. We strongly recommend you store this backup on removable storage, such as a USB flash drive.&lt;/p&gt;
+&lt;p&gt;Note that this file will not be encrypted, and if anyone gains access to it, they will be able to impersonate you, so take good care of it.&lt;/p&gt;</string>
+      </property>
+      <property name="wordWrap">
+       <bool>true</bool>
       </property>
      </widget>
     </item>
@@ -404,22 +483,6 @@ Are you sure you wish to replace your certificate?
       <property name="icon">
        <iconset>
         <normaloff>skin:actions/document-save-as.svg</normaloff>skin:actions/document-save-as.svg</iconset>
-      </property>
-     </widget>
-    </item>
-    <item row="2" column="0" colspan="3">
-     <widget class="CertView" name="cvExport">
-      <property name="toolTip">
-       <string>Current certificate</string>
-      </property>
-      <property name="whatsThis">
-       <string>This is the certificate Mumble currently uses. It will be exported.</string>
-      </property>
-      <property name="accessibleName">
-       <string>Displays current certificate</string>
-      </property>
-      <property name="title">
-       <string>Certificate Details</string>
       </property>
      </widget>
     </item>
